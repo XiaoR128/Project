@@ -1,4 +1,9 @@
+eventdata4.txt是标注好类别的四类事件和一些不包含该事件的博文
+filtdata.txt是数据清理后的结果
+eventwords.txt是一些事件触发词
+similiardata_new2.txt是对标注好类别的博文进行相似度量的结果
+
 cleardata.py对数据进行清理
-eventdata1.txt是标注好类别的四类事件
 modelwords.py进行分词和tf-idf计算等
 trainclassify.py计算相似度量和进行机器学习训练
+classimethod.py

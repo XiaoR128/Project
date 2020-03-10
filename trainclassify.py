@@ -52,16 +52,30 @@ def cutwords(text,labels):
 
     return li,lab
 
+#寻找最相似的几个词
+def mostsim():
+    model = g.KeyedVectors.load_word2vec_format('zhwiki_2017_03.sg_50d.word2vec', binary=False)
+    model.init_sims(replace=True)
+    type1 = [u'好吃', u'今天', u'吃饭', u'喜欢', u'火锅', u'美食']
+    type2 = [u'难受', u'感冒', u'受伤', u'发烧', u'患者', u'感觉']
+    type3 = [u'旅行', u'风景', u'我们', u'美景', u'出行', u'旅途']
+    type4 = [u'考试', u'上课', u'读书', u'作业', u'看书', u'阅读']
+    print(model.most_similar(type1))
+    print(model.most_similar(type2))
+    print(model.most_similar(type3))
+    print(model.most_similar(type4))
+
+
 #计算训练数据的词向量和之前得到的词向量之间的相似度
 def calsimilar(li):
     model = g.KeyedVectors.load_word2vec_format('zhwiki_2017_03.sg_50d.word2vec', binary=False)
     model.init_sims(replace=True)
 
     # 通过tf-idf得到的词结果
-    type1 = [u'好吃', u'今天', u'吃饭', u'感觉', u'火锅', u'美食']
-    type2 = [u'难受', u'感冒', u'今天', u'现在', u'痛苦', u'感觉']
-    type3 = [u'旅行', u'风景', u'我们', u'颜色', u'博文', u'场景']
-    type4 = [u'我们', u'学校', u'学会', u'同学', u'纪念', u'考试']
+    type1 = [u'好吃', u'早餐', u'吃饭', u'喜欢', u'火锅', u'美食', u'品尝', u'做菜', u'大餐', u'家常菜', u'佳肴', u'甜食']
+    type2 = [u'难受', u'感冒', u'受伤', u'发烧', u'患者', u'眩晕', u'疼痛', u'头痛', u'失眠', u'抽搐', u'疲倦', u'消瘦']
+    type3 = [u'旅行', u'风景', u'散步', u'美景', u'出行', u'旅途', u'一日游', u'游览', u'流连忘返', u'去处', u'来客', u'旅程']
+    type4 = [u'考试', u'上课', u'读书', u'作业', u'看书', u'阅读', u'疼痛', u'自习', u'听课', u'功课', u'复习', u'课堂']
 
 
     sim_res=[]
@@ -93,7 +107,7 @@ def cal_n_similarity(w1,w2,model):
 
 
 def writeback_sim(sim_res,labels):
-    f=open('similiardata.txt','w',encoding='utf=8')
+    f=open('similiardata_new2.txt','w',encoding='utf=8')
     l=len(sim_res)
     for i in range(l):
         f.write(str(labels[i])+'\t'+' '.join(sim_res[i])+'\n')
@@ -101,7 +115,7 @@ def writeback_sim(sim_res,labels):
     f.close()
 
 def read_svmd():
-    f=open('similiardata.txt','r',encoding='utf-8')
+    f=open('similiardata_new2.txt','r',encoding='utf-8')
     lines=f.readlines()
     line=[s.rstrip('\n') for s in lines]
     x=[]
@@ -132,7 +146,7 @@ def svm_train(x,y):
     # recall_score(y_test, y_pred, average='micro')
     # f1_score(y_test, y_pred, average='micro')
 
-    print(classification_report(y_test, y_pred, digits=3))
+    print(classification_report(y_test, y_pred, digits=4))
 
 
 
@@ -148,14 +162,17 @@ def svm_train(x,y):
 
 
 if __name__ == '__main__':
-    # labels,contents=readtrain('eventdata1.txt')
+    # 计算词向量之间的相似度
+    # labels,contents=readtrain('eventdata4.txt')
     # li,labels=cutwords(contents,labels)
     #
     # sim_res=calsimilar(li)
     # writeback_sim(sim_res,labels)
+
+
     x,y=read_svmd()
-    # print(np.array(x))
-    # print(np.array(y))
     svm_train(x,y)
 
     # usemodel()
+
+    # mostsim()

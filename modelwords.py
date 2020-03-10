@@ -2,10 +2,8 @@ import numpy as np
 import jieba.posseg
 import jieba.analyse
 import pandas as pd
-from sklearn import feature_extraction
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
-from gensim.models import KeyedVectors
 import gensim.models as g
 from gensim.models.word2vec import LineSentence
 import re
@@ -72,16 +70,27 @@ def takestr(file):
     print(len(totallist[3]))
 
     writeback(totallist)
+    writeback_details(totallist)
     return totallist
 
 #将找到的结果写回文件
 def writeback(stoplist):
-    f=open('tfidfdata.txt','w',encoding='utf-8')
+    f=open('tfidfdata_new.txt','w',encoding='utf-8')
     i=0
     for list in stoplist:
         for s in list:
             f.write(s+' ')
         f.write('\n')
+    f.close()
+
+def writeback_details(stoplist):
+    f = open('tfidfdata_new_det.txt', 'w', encoding='utf-8')
+    i = 0
+    for list in stoplist:
+        for s in list:
+            f.write(str(i)+'\t'+s)
+            f.write('\n')
+        i+=1
     f.close()
 
 #读取停顿词
@@ -153,6 +162,57 @@ def word2vecTrain(text):
     model.save('Word2VecModel.model')
     model.wv.save_word2vec_format('Word2VecModel.vector', binary=False)
 
+#清理标注后的数据
+def dealnodata():
+    f = open('tfidfdata_new_det.txt', 'r', encoding='utf-8')
+    li = f.readlines()
+    f.close()
+    words = [s.rstrip('\n') for s in li]
+
+    fs = open('filtdata.txt', 'r', encoding='utf-8')
+    lis = fs.readlines()
+    fs.close()
+    new_words = [s.rstrip('\n') for s in lis]
+
+    # wbs = open('tfidfdata_new.txt', 'w', encoding='utf-8')
+    #
+    #
+    # data=[]
+    # labels=[]
+    # for s in words:
+    #     la=s.split('\t')
+    #     labels.append(int(la[0]))
+    #     data.append(la[1])
+    #
+    # leng=len(labels)
+    # count=0
+    # for i in range(leng):
+    #     if labels[i]==count:
+    #         wbs.write(data[i]+' ')
+    #     else:
+    #         count+=1
+    #         wbs.write('\n'+data[i]+' ')
+    #
+    # wbs.close()
+
+
+
+    noevdata=[]
+    for sw in new_words:
+        if sw not in data:
+            noevdata.append(sw)
+
+    print(len(noevdata))
+
+    wb = open('noeventdata.txt', 'w', encoding='utf-8')
+    for s in noevdata:
+        wb.write(str(4)+'\t'+s)
+        wb.write('\n')
+    wb.close()
+
+
+
+
 #使用模型
 def usemodel():
     # fv=fast2vec()
@@ -160,7 +220,7 @@ def usemodel():
     model.init_sims(replace=True)
 
     type1 = [u'好吃', u'今天', u'吃饭', u'感觉', u'火锅', u'美食']
-    list2 = [u'烧烤', u'真的', u'好吃']
+    list2 = [u'烧烤', u'鲍鱼', u'面条']
 
     ww=model.n_similarity(type1,list2)
     print(ww)
@@ -176,8 +236,8 @@ def usemodel():
     # print(s)
 
 
-# def main():
-    # totallist=takestr('filtdata2.txt')
+def main():
+    # totallist=takestr('filtdata.txt')
 
     #对所有的语料库进行分词相关处理
     # wholetext=read('filtdata.txt')
@@ -191,13 +251,13 @@ def usemodel():
     # f.close()
 
 
-
+    # dealnodata()
 
     #利用tf-idf找到文档中的topk的词
-    # text=read('tfidfdata.txt')
-    # stopwords=readstop()
-    # li=datapro(text,stopwords)
-    # tfidf_topk(li,10)
+    text=read('tfidfdata_new.txt')
+    stopwords=readstop()
+    li=datapro(text,stopwords)
+    tfidf_topk(li,10)
 
     #训练数据
     # word2vecTrain('wordtraindata.txt')
@@ -205,19 +265,12 @@ def usemodel():
     #利用训练得到的数据
     # usemodel()
 
-    # model = KeyedVectors.load_word2vec_format('vectors.bin', binary=True)
-    # model = g.word2vec.Word2Vec.load('vectors.bin')
-    # sim1 = model.most_similar('难受', topn=10)
-    # for key in sim1:
-    #     print('和难受有关的词有', key[0], ',距离是', key[1])
-    # s01 = ['吃饭','我们']
-    # s02 = ['火锅','吃饭']
-    # s03 = '吃饭'
-    # print(model.similarity(s01, s02))
+    #test
 
 
 
-# if __name__ == '__main__':
-#     main()
+
+if __name__ == '__main__':
+    main()
 
 
